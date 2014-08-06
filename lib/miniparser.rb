@@ -3,18 +3,21 @@ require 'ostruct'
 
 class Miniparser
 
-  def self.parse config_file
+  # Note: The initial idea was to create a sigleton class and to just call
+  # Miniparser.parse sending the file but this is turning out to be a bit messy.
+  # Analyse the posibility of creating a Miniparse instance instead
+  # of being singleton, this will result more object oriented.
+
+  def self.parse config_file, return_type = :open_struct
     if File.readable? config_file
-      import_file config_file
+      import_file config_file, return_type
     else
       raise Errno::EACCES, "Can't read the config file: #{config_file}"
     end
   end
 
-  private
-
-  def self.import_file config_file
-    result_object = OpenStruct.new config_file: config_file
+  def self.import_file config_file, return_type
+    result_object = create_return_object(config_file, return_type)
 
     # Open the file
     open(config_file) do |f|
@@ -24,7 +27,7 @@ class Miniparser
         line.strip!
 
         # Skip the whole line if it's a comment or empty line
-        unless is_a_comment?(line) || line.empty?
+        unless is_a_comment?(line) or line.empty?
           # Continue if the line is a variable assignment
           if is_assignment?(line)
             # Extract the data
@@ -32,7 +35,7 @@ class Miniparser
 
             # Skip if the variable or the value is empty
             # Note: probably we need to check for nil here?
-            unless variable.empty? || value.empty?
+            unless variable.empty? or value.empty?
               result_object[variable.to_sym] = parse_value(value)
             end
           end
@@ -96,6 +99,16 @@ class Miniparser
       to_boolean(value)
     else
       value
+    end
+  end
+
+  # This create an instance of the return type that we choose to return
+  def self.create_return_object config_file, return_type
+    case return_type
+    when :open_struct
+      OpenStruct.new config_file: config_file
+    when :hash
+      { config_file: config_file }
     end
   end
 end
