@@ -11,7 +11,7 @@ describe Miniparser do
     end
 
     let(:parsed_example) do
-      OpenStruct.new(             host: 'test.com',
+      OpenStruct.new(            host: 'test.com',
                             server_id: 55331,
                     server_load_alarm: 2.5,
                                  user: 'user',
