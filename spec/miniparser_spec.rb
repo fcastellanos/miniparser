@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Miniparser do
-  describe '.parse' do
+  describe '#parse' do
     let(:config_file) do
       './spec/files/example.config'
     end
