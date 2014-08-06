@@ -31,6 +31,7 @@ class Miniparser
             variable, value = extract_data(line)
 
             # Skip if the variable or the value is empty
+            # Note: probably we need to check for nil here?
             unless variable.empty? || value.empty?
               result_object[variable.to_sym] = parse_value(value)
             end
