@@ -8,7 +8,7 @@ describe Miniparser do
 
     context "When we want an OpenStruct as a return object" do
       let(:output) do
-        Miniparser.parse config_file
+        Miniparser.new(config_file).parse
       end
 
       let(:parsed_example) do
@@ -70,7 +70,7 @@ describe Miniparser do
 
     context "When we want a Hash as a return object" do
       let(:output) do
-        Miniparser.parse config_file, :hash
+        Miniparser.new(config_file, :hash).parse
       end
 
       let(:parsed_example) do

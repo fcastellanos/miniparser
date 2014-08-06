@@ -2,22 +2,26 @@ require 'miniparser/version'
 require 'ostruct'
 
 class Miniparser
+  attr_accessor :config_file,
+                :return_type
 
-  # Note: The initial idea was to create a sigleton class and to just call
-  # Miniparser.parse sending the file but this is turning out to be a bit messy.
-  # Analyse the posibility of creating a Miniparse instance instead
-  # of being singleton, this will result more object oriented.
+  def initialize config_file, return_type = :open_struct
+    @config_file = config_file
+    @return_type = return_type
+  end
 
-  def self.parse config_file, return_type = :open_struct
+  def parse
     if File.readable? config_file
-      import_file config_file, return_type
+      import_file
     else
       raise Errno::EACCES, "Can't read the config file: #{config_file}"
     end
   end
 
-  def self.import_file config_file, return_type
-    result_object = create_return_object(config_file, return_type)
+  private
+
+  def import_file
+    result_object = create_return_object
 
     # Open the file
     open(config_file) do |f|
@@ -48,38 +52,38 @@ class Miniparser
 
   # If we have a # sign at the beginning of the line
     # we will consider it a comment
-  def self.is_a_comment? line
+  def is_a_comment? line
     /^\#/.match line
   end
 
   # If we have some string then an equal sign and then more string
     # we will consider it a variable assignment
-  def self.is_assignment? line
+  def is_assignment? line
     /\s*=\s*/.match line
   end
 
   # Split the line into two values cutting it from the first = sign
-  def self.extract_data line
+  def extract_data line
     line.split(/\s*=\s*/, 2)
   end
 
   # Returns true if it was able to parse it as Float and false if not
-  def self.is_numeric? value
+  def is_numeric? value
     Float(value) != nil rescue false
   end
 
   # Returns true if it was able to parse it as Integer and false if not
-  def self.is_integer? value
+  def is_integer? value
     Integer(value) != nil rescue false
   end
 
   # Returns true if the value is detected as boolean and fals if not
-  def self.is_boolean? value
+  def is_boolean? value
     /(true|yes|on|false|no|off)$/.match value
   end
 
   # It parses a value to boolean or it will raise an exception
-  def self.to_boolean value
+  def to_boolean value
     return true if value == true || value =~ (/(true|yes|on)$/i)
     return false if value == false || value =~ (/(false|no|off)$/i)
 
@@ -87,12 +91,12 @@ class Miniparser
   end
 
   # It parses a value to Integer or Float
-  def self.to_number value
+  def to_number value
     is_integer?(value) ? Integer(value) : Float(value)
   end
 
   # This will parse the value, if it's a number, a boolean or a string
-  def self.parse_value value
+  def parse_value value
     if is_numeric? value
       to_number(value)
     elsif is_boolean? value
@@ -103,7 +107,7 @@ class Miniparser
   end
 
   # This create an instance of the return type that we choose to return
-  def self.create_return_object config_file, return_type
+  def create_return_object
     case return_type
     when :open_struct
       OpenStruct.new config_file: config_file
