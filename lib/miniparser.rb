@@ -32,18 +32,7 @@ class Miniparser
 
             # Skip if the variable or the value is empty
             unless variable.empty? || value.empty?
-              # If the line is numeric parse it as numeric
-              # if it's not parse it as a string
-
-              # Note: There's room for improving this part,
-              # i.e. extract the type detection to a more generic one
-              if is_numeric? value
-                result_object[variable.to_sym] = to_number(value)
-              elsif is_boolean? value
-                result_object[variable.to_sym] = to_boolean(value)
-              else
-                result_object[variable.to_sym] = value
-              end
+              result_object[variable.to_sym] = parse_value(value)
             end
           end
         end
@@ -96,5 +85,16 @@ class Miniparser
   # It parses a value to Integer or Float
   def self.to_number value
     is_integer?(value) ? Integer(value) : Float(value)
+  end
+
+  # This will parse the value, if it's a number, a boolean or a string
+  def self.parse_value value
+    if is_numeric? value
+      to_number(value)
+    elsif is_boolean? value
+      to_boolean(value)
+    else
+      value
+    end
   end
 end
