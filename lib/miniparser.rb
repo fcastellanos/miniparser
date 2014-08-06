@@ -23,7 +23,7 @@ class Miniparser
         # Getting rid of empty spaces at the beginning and end of the line
         line.strip!
 
-        # Skip the whole line if it's a comment
+        # Skip the whole line if it's a comment or empty line
         unless is_a_comment?(line) || line.empty?
           # Continue if the line is a variable assignment
           if is_assignment?(line)
